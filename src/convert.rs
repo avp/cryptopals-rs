@@ -4,11 +4,16 @@ use base64;
 #[cfg(test)]
 fn from_hex_char(c: char) -> u8 {
   match c {
-    '0'...'9' => (c as u8 - '0' as u8),
-    'a'...'f' => (c as u8 - 'a' as u8 + 10),
-    'A'...'F' => (c as u8 - 'A' as u8 + 10),
+    '0'...'9' => (c as u8 - b'0'),
+    'a'...'f' => (c as u8 - b'a' + 10),
+    'A'...'F' => (c as u8 - b'A' + 10),
     _ => panic!("Invalid hex char: {}", c),
   }
+}
+
+#[cfg(test)]
+fn to_hex_char(b: u8) -> char {
+  (if b > 10 { b - 10 + b'a' } else { b + b'0' }) as char
 }
 
 #[cfg(test)]
@@ -18,10 +23,7 @@ pub fn from_hex(s: &str) -> Vec<u8> {
   loop {
     match (chars.next(), chars.next()) {
       (Some(a), Some(b)) => {
-        println!("{}{}", a, b);
-        let x = from_hex_char(a);
-        let y = from_hex_char(b);
-        result.push((x << 4) | y);
+        result.push((from_hex_char(a) << 4) | from_hex_char(b));
       }
       (Some(_), None) => panic!("Invalid string from_hex"),
       _ => break,
@@ -32,6 +34,25 @@ pub fn from_hex(s: &str) -> Vec<u8> {
 }
 
 #[cfg(test)]
-pub fn to_base64(b: Vec<u8>) -> String {
+pub fn to_hex(s: &[u8]) -> String {
+  let mut result = String::new();
+  for b in s {
+    result.push(to_hex_char(b >> 4));
+    result.push(to_hex_char(b & 0xf));
+  }
+  result
+}
+
+#[cfg(test)]
+pub fn to_base64(b: &[u8]) -> String {
   base64::encode(&b)
+}
+
+#[cfg(test)]
+pub fn xor_bytes(a: &[u8], b: &[u8]) -> Vec<u8> {
+  let mut xor = vec![];
+  for (x, y) in a.iter().zip(b) {
+    xor.push(x ^ y);
+  }
+  xor
 }
