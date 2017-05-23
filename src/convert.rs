@@ -1,5 +1,7 @@
 #[cfg(test)]
 use base64;
+#[cfg(test)]
+use std::char;
 
 #[cfg(test)]
 fn from_hex_char(c: char) -> u8 {
@@ -13,7 +15,7 @@ fn from_hex_char(c: char) -> u8 {
 
 #[cfg(test)]
 fn to_hex_char(b: u8) -> char {
-  (if b > 10 { b - 10 + b'a' } else { b + b'0' }) as char
+  char::from_digit(b as u32, 16).unwrap()
 }
 
 #[cfg(test)]
@@ -29,7 +31,6 @@ pub fn from_hex(s: &str) -> Vec<u8> {
       _ => break,
     }
   }
-  println!("{}", result.len());
   result
 }
 
@@ -46,6 +47,15 @@ pub fn to_hex(s: &[u8]) -> String {
 #[cfg(test)]
 pub fn to_base64(b: &[u8]) -> String {
   base64::encode(&b)
+}
+
+#[cfg(test)]
+pub fn to_text(bytes: &[u8]) -> String {
+  let mut result = String::new();
+  for b in bytes {
+    result.push(*b as char);
+  }
+  result
 }
 
 #[cfg(test)]
