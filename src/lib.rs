@@ -1,6 +1,7 @@
 extern crate base64;
 
 mod convert;
+mod crack;
 
 #[test]
 fn s1_c1() {
@@ -22,7 +23,9 @@ fn s1_c2() {
 #[test]
 fn s1_c3() {
   let c = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-  let k: [u8; 17] = [88; 17];
-  let m = convert::xor_bytes(&convert::from_hex(c), &k);
-  println!("{}", convert::to_text(&m));
+  assert_eq!(crack::crack_single_xor(&convert::from_hex(c)),
+             "Cooking MC's like a pound of bacon");
 }
+
+#[test]
+fn s1_c4() {}

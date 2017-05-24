@@ -60,9 +60,5 @@ pub fn to_text(bytes: &[u8]) -> String {
 
 #[cfg(test)]
 pub fn xor_bytes(a: &[u8], b: &[u8]) -> Vec<u8> {
-  let mut xor = vec![];
-  for (x, y) in a.iter().zip(b) {
-    xor.push(x ^ y);
-  }
-  xor
+  a.iter().zip(b).map(|(x, y)| x ^ y).collect()
 }
