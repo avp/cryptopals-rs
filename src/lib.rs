@@ -63,3 +63,12 @@ fn s1_c5() {
                   86326302e27282f";
   assert_eq!(c, expected);
 }
+
+#[test]
+fn test_hamming() {
+  assert_eq!(crypto::hamming_dist(&String::from("this is a test")
+                                     .into_bytes(),
+                                  &String::from("wokka wokka!!!")
+                                     .into_bytes()),
+             37);
+}
