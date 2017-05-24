@@ -1,5 +1,10 @@
 extern crate base64;
 
+#[cfg(test)]
+use std::fs::File;
+#[cfg(test)]
+use std::io::Read;
+
 mod convert;
 mod crack;
 
@@ -23,9 +28,23 @@ fn s1_c2() {
 #[test]
 fn s1_c3() {
   let c = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-  assert_eq!(crack::crack_single_xor(&convert::from_hex(c)),
-             "Cooking MC's like a pound of bacon");
+  println!("{}", crack::crack_single_xor(&convert::from_hex(c)));
 }
 
 #[test]
-fn s1_c4() {}
+fn s1_c4() {
+  let mut file = File::open("s1_c4").unwrap();
+  let mut contents = String::new();
+  file.read_to_string(&mut contents).unwrap();
+  let mut decoded: Vec<(f64, String)> = vec![];
+  for line in contents.lines() {
+    let m = crack::crack_single_xor(&convert::from_hex(line));
+    let score = crack::score_str(&m);
+    decoded.push((score, m));
+  }
+  let &(_, ref m) = decoded
+    .iter()
+    .max_by(|&&(s1, _), &&(s2, _)| s1.partial_cmp(&s2).unwrap())
+    .unwrap();
+  println!("{}", m);
+}

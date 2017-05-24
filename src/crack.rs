@@ -37,7 +37,7 @@ fn char_freqs() -> HashMap<char, f64> {
 }
 
 #[cfg(test)]
-fn score_str(string: &str) -> f64 {
+pub fn score_str(string: &str) -> f64 {
   let freqs: HashMap<char, f64> = char_freqs();
   let mut sum: f64 = 0.0;
   for c in string.chars() {
@@ -53,10 +53,10 @@ fn score_str(string: &str) -> f64 {
 pub fn crack_single_xor(bytes: &[u8]) -> String {
   let mut max = 0.0;
   let mut max_str = String::new();
-  let mut key = vec![0; bytes.len()+1];
+  let mut key = vec![0; bytes.len()];
   for k in 0x00..0xff {
-    for i in 0..key.len() - 1 {
-      key[i] = k;
+    for e in &mut key {
+      *e = k;
     }
     let mb = convert::xor_bytes(&key, bytes);
     let m: String = convert::to_text(&mb);
@@ -66,5 +66,5 @@ pub fn crack_single_xor(bytes: &[u8]) -> String {
       max = score;
     }
   }
-  return max_str;
+  max_str
 }
