@@ -29,7 +29,7 @@ fn s1_c2() {
 #[test]
 fn s1_c3() {
   let c = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-  println!("{}", crack::crack_single_xor(&convert::from_hex(c)));
+  println!("{}", crack::crack_single_xor(&convert::from_hex(c)).1);
 }
 
 #[test]
@@ -39,7 +39,7 @@ fn s1_c4() {
   file.read_to_string(&mut contents).unwrap();
   let mut decoded: Vec<(f64, String)> = vec![];
   for line in contents.lines() {
-    let m = crack::crack_single_xor(&convert::from_hex(line));
+    let (_, m) = crack::crack_single_xor(&convert::from_hex(line));
     let score = crack::score_str(&m);
     decoded.push((score, m));
   }
@@ -71,4 +71,12 @@ fn test_hamming() {
                                   &String::from("wokka wokka!!!")
                                      .into_bytes()),
              37);
+}
+
+#[test]
+fn s1_c6() {
+  let lines: Vec<&str> = include_str!("../data/s1_c6").lines().collect();
+  let bytes: Vec<u8> = convert::from_base64(&lines.join(""));
+  let (_, m) = crack::crack_repeating_xor(&bytes);
+  println!("{}", m);
 }

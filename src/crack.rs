@@ -1,6 +1,8 @@
 #[cfg(test)]
 use convert;
 #[cfg(test)]
+use crypto;
+#[cfg(test)]
 use std::collections::HashMap;
 
 #[cfg(test)]
@@ -50,9 +52,10 @@ pub fn score_str(string: &str) -> f64 {
 }
 
 #[cfg(test)]
-pub fn crack_single_xor(bytes: &[u8]) -> String {
+pub fn crack_single_xor(bytes: &[u8]) -> (u8, String) {
   let mut max = 0.0;
   let mut max_str = String::new();
+  let mut max_k: u8 = 0;
   let mut key = vec![0; bytes.len()];
   for k in 0x00..0xff {
     for e in &mut key {
@@ -63,8 +66,60 @@ pub fn crack_single_xor(bytes: &[u8]) -> String {
     let score = score_str(&m);
     if score > max {
       max_str = m;
+      max_k = k;
       max = score;
     }
   }
-  max_str
+  (max_k, max_str)
+}
+
+#[cfg(test)]
+pub fn crack_repeating_xor(bytes: &[u8]) -> (Vec<u8>, String) {
+  let keysizes: Vec<usize> = (2..41).collect();
+  let mut hamming: Vec<(usize, f64)> = keysizes
+    .iter()
+    .map(|&k| {
+      let chunk1 = &bytes[0 * k..1 * k];
+      let chunk2 = &bytes[1 * k..2 * k];
+      let chunk3 = &bytes[2 * k..3 * k];
+      let chunk4 = &bytes[3 * k..4 * k];
+      let result = (crypto::hamming_dist(chunk1, chunk2) as f64 / k as f64 +
+                    crypto::hamming_dist(chunk2, chunk3) as f64 / k as f64 +
+                    crypto::hamming_dist(chunk3, chunk4) as f64 / k as f64) /
+                   3.0;
+      (k, result)
+    })
+    .collect();
+  hamming.sort_by(|&(_, a), &(_, b)| a.partial_cmp(&b).unwrap());
+
+  let mut max_str = String::new();
+  let mut max_key = vec![];
+  let mut max_score = 0.0;
+
+  for &(keysize, _) in hamming.iter().take(5) {
+    // Transposed blocks.
+    let mut blocks: Vec<Vec<u8>> = vec![vec![]; keysize];
+    for chunk in bytes.chunks(keysize) {
+      for (i, &c) in chunk.iter().enumerate() {
+        blocks[i].push(c);
+      }
+    }
+
+    let key: Vec<u8> = blocks
+      .iter()
+      .map(|b| {
+             let (k, _) = crack_single_xor(&b);
+             k
+           })
+      .collect();
+
+    let m = convert::to_text(&crypto::repeating_xor(bytes, &key));
+    let score = score_str(&m);
+    if score > max_score {
+      max_score = score;
+      max_str = m;
+      max_key = key;
+    }
+  }
+  (max_key, max_str)
 }

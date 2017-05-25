@@ -50,6 +50,11 @@ pub fn to_base64(b: &[u8]) -> String {
 }
 
 #[cfg(test)]
+pub fn from_base64(b: &str) -> Vec<u8> {
+  base64::decode(b).unwrap()
+}
+
+#[cfg(test)]
 pub fn to_text(bytes: &[u8]) -> String {
   let mut result = String::new();
   for b in bytes {
