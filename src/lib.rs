@@ -1,4 +1,5 @@
 extern crate base64;
+extern crate openssl;
 
 #[cfg(test)]
 use std::fs::File;
@@ -78,5 +79,14 @@ fn s1_c6() {
   let lines: Vec<&str> = include_str!("../data/s1_c6").lines().collect();
   let bytes: Vec<u8> = convert::from_base64(&lines.join(""));
   let (_, m) = crack::crack_repeating_xor(&bytes);
+  println!("{}", m);
+}
+
+#[test]
+fn s1_c7() {
+  let lines: Vec<&str> = include_str!("../data/s1_c7").lines().collect();
+  let bytes: Vec<u8> = convert::from_base64(&lines.join(""));
+  let m = convert::to_text(&crypto::decrypt_aes_128_ecb(&bytes,
+                                                        b"YELLOW SUBMARINE"));
   println!("{}", m);
 }

@@ -4,4 +4,5 @@ version = "0.1.0"
 authors = ["Aakash Patel <aakpat6@gmail.com>"]
 
 [dependencies]
-base64 = "0.5.2"
+base64 = "*"
+openssl = "*"

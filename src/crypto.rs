@@ -11,3 +11,11 @@ pub fn hamming_dist(a: &[u8], b: &[u8]) -> u32 {
 
   a.iter().zip(b).map(|(x, y)| count_bits(x ^ y)).sum()
 }
+
+
+#[cfg(test)]
+pub fn decrypt_aes_128_ecb(cipher: &[u8], key: &[u8]) -> Vec<u8> {
+  use openssl::symm::{Cipher, decrypt};
+
+  decrypt(Cipher::aes_128_ecb(), &key, Some(&vec![]), &cipher).unwrap()
+}
