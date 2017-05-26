@@ -38,7 +38,7 @@ fn s1_c4() {
   let mut file = File::open("s1_c4").unwrap();
   let mut contents = String::new();
   file.read_to_string(&mut contents).unwrap();
-  let mut decoded: Vec<(f64, String)> = vec![];
+  let mut decoded: Vec<(u64, String)> = vec![];
   for line in contents.lines() {
     let (_, m) = crack::crack_single_xor(&convert::from_hex(line));
     let score = crack::score_str(&m);
@@ -89,4 +89,21 @@ fn s1_c7() {
   let m = convert::to_text(&crypto::decrypt_aes_128_ecb(&bytes,
                                                         b"YELLOW SUBMARINE"));
   println!("{}", m);
+}
+
+#[test]
+fn s1_c8() {
+  use std::collections::HashSet;
+  let lines: Vec<&str> = include_str!("../data/s1_c8").lines().collect();
+  let bytelines: Vec<Vec<u8>> =
+    lines.iter().map(|line| convert::from_hex(&line)).collect();
+  for bytes in bytelines {
+    let mut seen: HashSet<&[u8]> = HashSet::new();
+    for chunk in bytes.chunks(16) {
+      if seen.contains(chunk) {
+        println!("{}", convert::to_hex(&bytes));
+      }
+      seen.insert(chunk);
+    }
+  }
 }
