@@ -1,5 +1,6 @@
 extern crate base64;
 extern crate openssl;
+extern crate rand;
 
 #[cfg(test)]
 use std::fs::File;
@@ -92,6 +93,16 @@ fn s1_c7() {
 }
 
 #[test]
+fn test_ecb_decrypt() {
+  let bytes = &[9, 18, 48, 170, 222, 62, 179, 48, 219, 170, 67, 88, 248, 141,
+                42, 108];
+  println!("{:?}", convert::to_hex(bytes));
+  let key = b"YELLOW SUBMARINE";
+  println!("{:?}",
+           convert::to_text(&crypto::decrypt_aes_128_ecb(bytes, key)));
+}
+
+#[test]
 fn s1_c8() {
   use std::collections::HashSet;
   let lines: Vec<&str> = include_str!("../data/s1_c8").lines().collect();
@@ -105,5 +116,35 @@ fn s1_c8() {
       }
       seen.insert(chunk);
     }
+  }
+}
+
+#[test]
+fn s2_c9() {
+  assert_eq!(crypto::pkcs_pad(b"YELLOW SUBMARINE", 20),
+             b"YELLOW SUBMARINE\x04\x04\x04\x04");
+}
+
+#[test]
+fn s2_c10() {
+  let lines: Vec<&str> = include_str!("../data/s2_c10").lines().collect();
+  let bytes: Vec<u8> = convert::from_base64(&lines.join(""));
+  let key = b"YELLOW SUBMARINE";
+  let iv = &[0; 16];
+  let msg = crypto::decrypt_aes_128_cbc(&bytes, key, iv);
+  println!("{}", convert::to_text(&msg));
+  assert_eq!(bytes, crypto::encrypt_aes_128_cbc(&msg, key, iv));
+}
+
+#[test]
+fn s2_c11() {
+  let mut input = vec![];
+  for _ in 1..8 {
+    input.extend_from_slice(b"ABCDEFG ABCDEFG ");
+  }
+  for _ in 1..100 {
+    let (expected, cipher) = crypto::rand_encrypt(&input);
+    let actual = crypto::encryption_oracle(&cipher);
+    assert_eq!(expected, actual);
   }
 }

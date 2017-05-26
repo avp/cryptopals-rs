@@ -6,3 +6,4 @@ authors = ["Aakash Patel <aakpat6@gmail.com>"]
 [dependencies]
 base64 = "*"
 openssl = "*"
+rand = "*"
